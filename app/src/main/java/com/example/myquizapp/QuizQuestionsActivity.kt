@@ -1,5 +1,6 @@
 package com.example.myquizapp
 
+import android.content.Intent
 import android.graphics.Color
 import android.graphics.Typeface
 import android.graphics.drawable.AdaptiveIconDrawable
@@ -15,6 +16,8 @@ class QuizQuestionsActivity : AppCompatActivity(), View.OnClickListener {
     private var mCurrentPosition : Int = 1
     private var mQuestionList : ArrayList<Question>? = null
     private var mSelectedOptionPosition : Int = 0
+    private var mUserName : String? = null
+    private var mCorrectAnswer : Int = 0
 
     private var progressBar : ProgressBar? = null
     private var tvProgress : TextView? = null
@@ -30,6 +33,8 @@ class QuizQuestionsActivity : AppCompatActivity(), View.OnClickListener {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_quiz_questions)
+
+        mUserName = intent.getStringExtra(Constants.USER_NAME)
 
         progressBar = findViewById(R.id.progressBar)
         tvProgress = findViewById(R.id.tv_progress)
@@ -144,15 +149,22 @@ class QuizQuestionsActivity : AppCompatActivity(), View.OnClickListener {
                             setQuestion()
                         }
                         else ->{
-                            Toast.makeText(this, "You made it to the end", Toast.LENGTH_LONG).show()
+                            val intent = Intent(this, ResultActivity::class.java)
+                            intent.putExtra(Constants.USER_NAME, mUserName)
+                            intent.putExtra(Constants.CORRECT_ANSWER, mCorrectAnswer)
+                            intent.putExtra(Constants.TOTAL_QUESTIONS, mQuestionList?.size)
+                            startActivity(intent)
+                            finish()
                         }
                     }
                 }else{
                     val question = mQuestionList?.get(mCurrentPosition -1)
                     if(question!!.correctAnswer != mSelectedOptionPosition){
                         answerView(mSelectedOptionPosition, R.drawable.wrong_option_border_bg)
+                    }else{
+                        mCorrectAnswer++
                     }
-                    answerView(mSelectedOptionPosition, R.drawable.correct_option_border_bg)
+                    answerView(question.correctAnswer, R.drawable.correct_option_border_bg)
 
                     if (mCurrentPosition == mQuestionList!!.size){
                         btnSubmit?.text = "FINISH"
@@ -167,30 +179,30 @@ class QuizQuestionsActivity : AppCompatActivity(), View.OnClickListener {
         }
     }
 
-    private fun answerView(answer: Int, drawable: Int){
+    private fun answerView(answer: Int, drawableView: Int){
         when(answer){
             1 -> {
                 tvOptionOne?.background = ContextCompat.getDrawable(
                     this,
-                    drawable
+                    drawableView
                 )
             }
             2 -> {
                 tvOptionTwo?.background = ContextCompat.getDrawable(
                     this@QuizQuestionsActivity,
-                    drawable
+                    drawableView
                 )
             }
             3 -> {
                 tvOptionThree?.background = ContextCompat.getDrawable(
                     this@QuizQuestionsActivity,
-                    drawable
+                    drawableView
                 )
             }
             4 -> {
                 tvOptionFour?.background = ContextCompat.getDrawable(
                     this@QuizQuestionsActivity,
-                    drawable
+                    drawableView
                 )
             }
         }
